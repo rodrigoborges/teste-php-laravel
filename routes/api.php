@@ -22,5 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('document')->group(function () {
     Route::post('/import', [ImportDocumentController::class, 'import']);
-    Route::get('/import-progress', [ImportDocumentController::class, 'getImportProgress']);
 });

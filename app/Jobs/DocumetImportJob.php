@@ -5,9 +5,13 @@ namespace App\Jobs;
 use App\Models\Category;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class DocumetImportJob implements ShouldQueue
 {
@@ -28,18 +32,38 @@ class DocumetImportJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $nameCategory = $this->document['categoria'];
-        $category = Category::firstOrNew(['name' => $nameCategory]);
+        try {
+            $dataDocument = [
+                'title' => $this->document['titulo'],
+                'contents' => $this->document['conteúdo'],
+            ];
 
-        if (!$category->exists) {
-            $category->save();
+            $validator = Validator::make($dataDocument, [
+                'title' => 'required',
+                'contents' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $nameCategory = $this->document['categoria'];
+
+            // Tente encontrar a categoria existente ou crie uma nova
+            $category = Category::firstOrNew(['name' => $nameCategory]);
+
+            if (!$category->exists) {
+                $category->save();
+            }
+
+            $category->documents()->create($dataDocument);
+
+        } catch (ValidationException $e) {
+            Log::channel('import_document')->error('[DOCUMENT_IMPORT]ValidationException: ' . $e->getMessage());
+        } catch (QueryException $e) {
+            Log::channel('import_document')->error('[DOCUMENT_IMPORT]QueryException: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::channel('import_document')->error('[DOCUMENT_IMPORT]Exception: ' . $e->getMessage());
         }
-
-        $dataDocument = [
-            'title' => $this->document['titulo'],
-            'contents' => $this->document['conteúdo'],
-        ];
-
-        $category->documents()->create($dataDocument);
     }
 }

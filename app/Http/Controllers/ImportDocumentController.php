@@ -36,11 +36,4 @@ class ImportDocumentController extends Controller
 
         return response()->json(['message' => 'Importação iniciada']);
     }
-
-    public function getImportProgress(Request $request)
-    {
-        $import_progress = ImportProgress::query()->first();
-
-        return response()->json($import_progress);
-    }
 }
