@@ -34,6 +34,6 @@ class ImportDocumentController extends Controller
             DocumetImportJob::dispatch($document)->onQueue('process-documents');
         }
 
-        return response()->json(['message' => 'Importação iniciada']);
+        return response()->json(['message' => 'Importação iniciada com sucesso.']);
     }
 }
