@@ -15,7 +15,7 @@ return new class extends Migration
 // Para resolver o problema, basta verificar se a tabela existe antes de criar a mesma.
 // No caso de uma nova instalação, a tabela não existirá e a migration será executada.
 // Caso a tabela já exista, a migration não será executada.
-        if (!Schema::hasTable('categories')) {
+        if (!Schema::hasTable('documents')) {
             Schema::create('documents' , function (Blueprint $table) {
                 $table->id();
                 $table->string('title' , 60);
