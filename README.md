@@ -36,3 +36,14 @@ Se a caterogia for "Remessa Parcial", o titulo deve conter o nome de um mês(Jan
 
 
 Boa sorte!
+
+### Instruções para validar o teste:
+
+1. Após criar o .env.example, rodar o comando `php artisan key:generate` para gerar a chave da aplicação.
+2. Caso opte por utilizar o QUEUE_CONNECTION como database, bastar rodar o comando `php artisan queue:work --queue=process-documents` para processar a fila.
+3. Para rodar os testes isolados, basta rodar os comandos:
+   1. `php artisan test --filter=check_contents_documents_from_category_is_valid`
+   2. `php artisan test --filter=check_max_lenght_field_contents_is_correct`
+6. A rota para acessar a tela de importação é a `/document/import` 
+7. Para atender a teste unitário que valida o tamanho máximo do campo conteúdo, foi utilizado o limite de **2000** caracteres.
+
