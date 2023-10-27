@@ -46,4 +46,5 @@ Boa sorte!
    2. `php artisan test --filter=check_max_lenght_field_contents_is_correct`
 6. A rota para acessar a tela de importação é a `/document/import` 
 7. Para atender a teste unitário que valida o tamanho máximo do campo conteúdo, foi utilizado o limite de **2000** caracteres.
+8. **O arquivo fornecido para importação não está no critério de validação do teste, ao ser importado pela aplicação o processamento irá informar Registro Inválido.**
 
