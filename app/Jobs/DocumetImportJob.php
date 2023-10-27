@@ -19,7 +19,7 @@ class DocumetImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $document;
+    private array $document;
 
     /**
      * Create a new job instance.
@@ -43,7 +43,7 @@ class DocumetImportJob implements ShouldQueue
             ];
 
             $validator = Validator::make($dataDocument, [
-                'contents' => 'required|max:2000',
+                'contents' => ['required', 'max:2000'],
                 'title' => ['required', new CheckTitleFromCategoryRule($nameCategory)]
             ]);
 

@@ -5,6 +5,9 @@ namespace Tests\Unit;
 use App\Http\Controllers\ImportDocumentController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -23,19 +26,26 @@ class DocumentImportTest extends TestCase
             ]
         ]];
 
-        $controller = new ImportDocumentController();
+        // Caminho para o arquivo JSON temporário
+        $jsonFilePath = storage_path('app/testing/temporary.json');
 
-        $method = new \ReflectionMethod($controller, 'processDocuments');
-        $method->setAccessible(true);
+        // Cria o arquivo JSON temporário
+        file_put_contents($jsonFilePath, json_encode($data));
 
-        try {
-            $method->invoke($controller, $data);
-        } catch (ValidationException $e) {
-            $this->assertStringContainsString('The contents field must not be greater than 2000 characters.', $e->getMessage());
-            return;
-        }
+        // Simula o envio do arquivo JSON
+        $response = $this->post(route('document.import'), [
+            'json_file' => new UploadedFile($jsonFilePath,
+                'temporary.json',
+                'application/json',
+                null,
+                true)
+        ]);
 
-        $this->fail('ValidationException was not thrown as expected.');
+        // Limpa o arquivo JSON temporário após o teste
+        unlink($jsonFilePath);
+
+        $this->assertStringContainsString('The contents field must not be greater than 2000 characters.',
+            $response->exception->getMessage());
     }
 
     /** @test */
@@ -52,18 +62,28 @@ class DocumentImportTest extends TestCase
             ]
         ]];
 
-        $controller = new ImportDocumentController();
+        // Caminho para o arquivo JSON temporário
+        $jsonFilePath = storage_path('app/testing/temporary.json');
 
-        $method = new \ReflectionMethod($controller, 'processDocuments');
-        $method->setAccessible(true);
+        // Cria o arquivo JSON temporário
+        file_put_contents($jsonFilePath, json_encode($data));
 
-        try {
-            $method->invoke($controller, $data);
-        } catch (ValidationException $e) {
-            $this->assertEquals('Registro inválido.', $e->getMessage());
-            return;
-        }
+        // Simula o envio do arquivo JSON
+        $response = $this->post(route('document.import'), [
+            'json_file' => new UploadedFile($jsonFilePath,
+                'temporary.json',
+                'application/json',
+                null,
+                true)
+        ]);
 
-        $this->fail('ValidationException was not thrown as expected. ' . var_export($data, true));
+        // Limpa o arquivo JSON temporário após o teste
+        unlink($jsonFilePath);
+
+        if ($response->exception instanceof ValidationException)
+            $this->assertEquals('Registro inválido.', $response->exception->getMessage());
+        else
+            $this->fail('ValidationException was not thrown as expected. ' . var_export($data, true));
+
     }
 }
