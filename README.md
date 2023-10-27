@@ -42,8 +42,12 @@ Boa sorte!
 1. Após criar o .env.example, rodar o comando `php artisan key:generate` para gerar a chave da aplicação.
 2. Caso opte por utilizar o QUEUE_CONNECTION como database, bastar rodar o comando `php artisan queue:work --queue=process-documents` para processar a fila.
 3. Para rodar os testes isolados, basta rodar os comandos:
-   1. `php artisan test --filter=check_contents_documents_from_category_is_valid`
-   2. `php artisan test --filter=check_max_lenght_field_contents_is_correct`
+   1. `php artisan test --filter=check_max_length_field_contents_is_invalid`
+   2. `php artisan test --filter=check_max_length_field_contents_is_valid`
+   3. `php artisan test --filter=check_contents_documents_from_category_remessa_is_valid`
+   4. `php artisan test --filter=check_contents_documents_from_category_remessa_is_invalid`
+   5. `php artisan test --filter=check_contents_documents_from_category_remessa_parcial_is_valid`
+   6. `php artisan test --filter=check_contents_documents_from_category_remessa_parcial_is_invalid`
 6. A rota para acessar a tela de importação é a `/document/import` 
 7. Para atender a teste unitário que valida o tamanho máximo do campo conteúdo, foi utilizado o limite de **2000** caracteres.
 8. **O arquivo fornecido para importação não está no critério de validação do teste, ao ser importado pela aplicação o processamento irá informar Registro Inválido.**
