@@ -19,7 +19,7 @@ class DocumentImportTest extends TestCase
             [
                 'categoria' => $this->faker->randomElement(['Remessa', 'Remessa Parcial']),
                 'titulo' => $this->faker->sentence,
-                'conteúdo' => $this->faker->text(2100)
+                'conteúdo' => $this->faker->realText(2100)
             ]
         ]];
 

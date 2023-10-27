@@ -44,8 +44,7 @@ class DocumetImportJob implements ShouldQueue
 
             $validator = Validator::make($dataDocument, [
                 'contents' => 'required|max:2000',
-                'title' => [
-                'required', new CheckTitleFromCategoryRule($nameCategory)],
+                'title' => ['required', new CheckTitleFromCategoryRule($nameCategory)]
             ]);
 
             if ($validator->fails()) {
