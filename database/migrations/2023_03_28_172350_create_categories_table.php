@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
 // A tabela categories já existe na base e por esse motivo ao executar a migration ocorre o erro.
-// Para resolver o problema, basta verificar se a tabela existe antes de criar a mesma.
 // No caso de uma nova instalação, a tabela não existirá e a migration será executada.
 // Caso a tabela já exista, a migration não será executada.
         if (!Schema::hasTable('categories')) {

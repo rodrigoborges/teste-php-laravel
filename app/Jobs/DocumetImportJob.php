@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Libraries\DocumentManager;
 use App\Models\Category;
 use App\Rules\Documents\CheckTitleFromCategoryRule;
 use Illuminate\Bus\Queueable;
@@ -19,7 +20,7 @@ class DocumetImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $document;
+    private array $document;
 
     /**
      * Create a new job instance.
@@ -43,23 +44,15 @@ class DocumetImportJob implements ShouldQueue
             ];
 
             $validator = Validator::make($dataDocument, [
-                'contents' => 'required|max:2000',
-                'title' => [
-                'required', new CheckTitleFromCategoryRule($nameCategory)],
+                'contents' => ['required', 'max:2000'],
+                'title' => ['required', new CheckTitleFromCategoryRule($nameCategory)]
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            // Tente encontrar a categoria existente ou crie uma nova
-            $category = Category::firstOrNew(['name' => $nameCategory]);
-
-            if (!$category->exists) {
-                $category->save();
-            }
-
-            $category->documents()->create($dataDocument);
+            app(DocumentManager::class)->createDocument($nameCategory, $dataDocument);
 
         } catch (ValidationException $e) {
             Log::channel('import_document')->error('[DOCUMENT_IMPORT]ValidationException: ' . $e->getMessage());

@@ -2,37 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\DocumetImportJob;
+use App\Http\Requests\ImportDocumentRequest;
+use App\Libraries\DocumentManager;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
 
 class ImportDocumentController extends Controller
 {
-    private const DOCUMENT_FILE  = '2023-03-28.json';
+    private DocumentManager $documentManager;
 
-    public function import(Request $request) : JsonResponse
+    public function __construct(DocumentManager $documentManager)
     {
-        if (!Storage::disk('import')->exists(self::DOCUMENT_FILE)) {
-            return response()->json(['message' => 'Arquivo para importação não encontrado.'], 404);
-        }
-
-        $jsonData = Storage::disk('import')->get(self::DOCUMENT_FILE);
-
-        $data = json_decode($jsonData, true);
-
-        return $this->processDocuments($data);
+        $this->documentManager = $documentManager;
     }
 
-    private function processDocuments(array $data) : JsonResponse
+    public function store(ImportDocumentRequest $request) : JsonResponse
     {
-        if (!isset($data['documentos']) || empty($data['documentos'])) {
-            return response()->json(['message' => 'Arquivo para importação não possui documentos.'], 404);
+        $jsonFile = $request->file('json_file');
+
+        if (!$jsonFile->isValid()) {
+            return response()->json(['message' => 'Arquivo inválido.'], Response::HTTP_BAD_REQUEST);
         }
 
-        foreach ($data['documentos'] as $document) {
-            DocumetImportJob::dispatch($document)->onQueue('process-documents');
-        }
+        $data = $this->documentManager->getJsonContent($jsonFile);
+
+        $statusProcess = $this->documentManager->processDocuments($data);
+
+        if (!$statusProcess) return response()->json(['message' => 'Arquivo para importação não possui documentos.'], Response::HTTP_NOT_FOUND);
 
         return response()->json(['message' => 'Importação iniciada com sucesso.']);
     }
