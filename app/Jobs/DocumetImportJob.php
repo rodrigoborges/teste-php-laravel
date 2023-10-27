@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Libraries\DocumentManager;
 use App\Models\Category;
 use App\Rules\Documents\CheckTitleFromCategoryRule;
 use Illuminate\Bus\Queueable;
@@ -51,14 +52,7 @@ class DocumetImportJob implements ShouldQueue
                 throw new ValidationException($validator);
             }
 
-            // Tente encontrar a categoria existente ou crie uma nova
-            $category = Category::firstOrNew(['name' => $nameCategory]);
-
-            if (!$category->exists) {
-                $category->save();
-            }
-
-            $category->documents()->create($dataDocument);
+            app(DocumentManager::class)->createDocument($nameCategory, $dataDocument);
 
         } catch (ValidationException $e) {
             Log::channel('import_document')->error('[DOCUMENT_IMPORT]ValidationException: ' . $e->getMessage());

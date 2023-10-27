@@ -3,22 +3,42 @@
 namespace App\Libraries;
 
 use App\Jobs\DocumetImportJob;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use App\Models\Category;
+use App\Models\Document;
+use Illuminate\Support\Facades\File;
+use Illuminate\Http\UploadedFile;
 
 class DocumentManager
 {
-    public function processDocuments(array $data) : JsonResponse
+    public function processDocuments(array $data) : bool
     {
         if (!isset($data['documentos']) || empty($data['documentos'])) {
-            return response()->json(['message' => 'Arquivo para importação não possui documentos.'], Response::HTTP_NOT_FOUND);
+            return false;
         }
 
         foreach ($data['documentos'] as $document) {
             DocumetImportJob::dispatch($document)->onQueue('process-documents');
         }
 
-        return response()->json(['message' => 'Importação iniciada com sucesso.']);
+        return true;
     }
+
+    public function getJsonContent(UploadedFile $jsonFile) : array
+    {
+        $jsonData = File::get($jsonFile->path());
+
+        $data = json_decode($jsonData, true);
+
+        return $data;
+    }
+
+    public function createDocument(string $nameCategory, array $dataDocument) : Document
+    {
+        // Tente encontrar a categoria existente ou crie uma nova
+        $category = Category::firstOrCreate(['name' => $nameCategory]);
+
+        return $category->documents()->create($dataDocument);
+    }
+
 
 }

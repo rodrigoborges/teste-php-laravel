@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImportDocumentRequest;
 use App\Libraries\DocumentManager;
-use Illuminate\Support\Facades\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -25,10 +24,12 @@ class ImportDocumentController extends Controller
             return response()->json(['message' => 'Arquivo inválido.'], Response::HTTP_BAD_REQUEST);
         }
 
-        $jsonData = File::get($jsonFile->path());
+        $data = $this->documentManager->getJsonContent($jsonFile);
 
-        $data = json_decode($jsonData, true);
+        $statusProcess = $this->documentManager->processDocuments($data);
 
-        return $this->documentManager->processDocuments($data);
+        if (!$statusProcess) return response()->json(['message' => 'Arquivo para importação não possui documentos.'], Response::HTTP_NOT_FOUND);
+
+        return response()->json(['message' => 'Importação iniciada com sucesso.']);
     }
 }
