@@ -24,7 +24,7 @@ class ImportDocumentController extends Controller
         return $this->processDocuments($data);
     }
 
-    private function processDocuments(array $data)
+    private function processDocuments(array $data) : JsonResponse
     {
         if (!isset($data['documentos']) || empty($data['documentos'])) {
             return response()->json(['message' => 'Arquivo para importação não possui documentos.'], 404);
